@@ -1,29 +1,68 @@
+/*
+    Copyright (c) 2007-2014 Contributors as noted in the AUTHORS file
+
+    This file is part of 0MQ.
+
+    0MQ is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    0MQ is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package org.zeromq;
 
-/**
- * ZeroMQ runtime exception.
- * 
- * @author Alois Belaska &lt;alois.belaska@gmail.com&gt;
- */
-public class ZMQException extends RuntimeException {
-    private static final long serialVersionUID = -978820750094924644L;
+import zmq.ZError;
 
-    private int errorCode = 0;
+public class ZMQException extends RuntimeException
+{
+    public static class IOException extends RuntimeException
+    {
+        private static final long serialVersionUID = 8440355423370109164L;
 
-    public ZMQException(String message, int errorCode) {
-        super(message);
-        this.errorCode = errorCode;
+        public IOException(java.io.IOException cause)
+        {
+            super(cause);
+        }
     }
 
-    /**
-     * @return error code
-     */
-    public int getErrorCode() {
-        return errorCode;
+    private static final long serialVersionUID = 5957233088499712341L;
+
+    private final int code;
+
+    public ZMQException(int errno)
+    {
+        super("Errno " + errno);
+        code = errno;
+    }
+
+    public ZMQException(String message, int errno)
+    {
+        super(message);
+        code = errno;
+    }
+
+    public ZMQException(ZMQException cause)
+    {
+        super(cause.getMessage(), cause);
+        code = cause.code;
+    }
+
+    public int getErrorCode()
+    {
+        return code;
     }
 
     @Override
-    public String toString() {
-        return super.toString() + "(0x" + Integer.toHexString(errorCode) + ")";
+    public String toString()
+    {
+        return super.toString() + " : " + ZError.toString(code);
     }
 }
